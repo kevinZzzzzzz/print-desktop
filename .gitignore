@@ -1,0 +1,9 @@
+/node_modules
+*/node_modules
+/dist-electron
+/dist_electron
+/dist
+/release
+/electron_dist
+/build_exe
+/build/*

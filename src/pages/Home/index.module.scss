@@ -1,0 +1,11 @@
+.homePage {
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: #fff;
+  padding: 16px;
+  &_iframe {
+    width: 96vw;
+    height: 100vh;
+  }
+}
