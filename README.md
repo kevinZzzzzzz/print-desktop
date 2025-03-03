@@ -1,16 +1,19 @@
 # xxx(项目名) 项目
 
 ## 项目地址
+
 #### [xxx](项目地址): 项目地址
 
 ## 技术选型
-* 框架 react V18
-* 路由 react-router-dom V8
-* 状态管理工具 redux+@reduxjs/toolkit
-* 打包构建工具 vite + rollup
-* UI框架 --
+
+- 框架 react V18 | electron v30.0.1
+- 路由 react-router-dom V8
+- 状态管理工具 redux+@reduxjs/toolkit
+- 打包构建工具 vite + rollup
+- UI 框架 ant.design
 
 ## 快速启动
+
 - 安装依赖包
   ```
   npm install || pnpm install
@@ -21,22 +24,22 @@
   4、建议使用pnpm，优点：(1)轻量化，(2)速度快
   ```
 - 启动项目
-   ```
-   npm run dev || pnpm dev
-   ```
-- 项目打包
-   ```
-   npm run build || pnpm build
-   ```
-- 本地部署
-   ```
-   npm run docker || pnpm docker
-   本地部署前提：本地安装docker，并且执行环境要在 bash环境！！！
-   ```
+  ```
+  npm run electron:dev || pnpm electron:dev
+  ```
+- 项目打包 window
+  ```
+  npm run electron:build:win || pnpm electron:build:win
+  ```
+- 项目打包 mac
+  ```
+  npm run electron:build:mac || pnpm electron:build:mac
+  ```
 
 # 目录介绍
+
 ```
-cold-chain-web
+print-desktop
 │  .cz-config.js                       ### 提交文案规范配置文件, 在pre-commit钩子中发挥作用
 │  .editorconfig                       ### 编写规范配置
 │  .env.development                    ### 开发环境常量
@@ -50,7 +53,9 @@ cold-chain-web
 │  package.json                        ### 项目依赖管理
 │  README.md                           ### help
 │  tsconfig.json
+│  electron                            ### electron相关配置
 │  vite.config.ts                      ### 打包构建配置
+│  vite.config.electron.ts             ### electron打包构建配置
 │  Dockerfile                          ### 测试&生产dockerfile
 │  nginx.conf                          ### 测试&生产nginx配置
 ├─.bin                                 ### 命令执行文件
@@ -74,8 +79,11 @@ cold-chain-web
     └─utils                            ### 工具库
 
 ```
+
 ## commit 提交规范
+
 提交代码必须按照规范提交！！！
+
 ```
   type
 

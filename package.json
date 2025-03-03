@@ -23,7 +23,9 @@
     "electron-store": "^9.0.0",
     "electron-updater": "^6.2.1",
     "fs-extra": "^11.3.0",
+    "graceful-fs": "^4.2.11",
     "hoslink-xxx": "^1.1.1",
+    "jsonfile": "^6.1.0",
     "multispinner": "^0.2.1",
     "node-fetch": "^3.3.2",
     "pdf-to-printer": "^5.6.0",
@@ -83,7 +85,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "build/icon/icon.ico"
+      "icon": "build/icons/icon.ico"
     },
     "nsis": {
       "language": 2052,
@@ -96,7 +98,9 @@
       "allowToChangeInstallationDirectory": true
     },
     "files": [
-      "build/**/*"
+      "electron/**/*",
+      "build/**/*",
+      "public/**/*"
     ],
     "directories": {
       "buildResources": "assets",

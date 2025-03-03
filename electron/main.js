@@ -26,6 +26,7 @@ app.commandLine.appendSwitch("disable-web-security");
 app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors"); // 允许跨域
 app.commandLine.appendSwitch("--ignore-certificate-errors", "true"); // 忽略证书相关错误
 let win; // 窗口实例
+
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "print-desktop",
@@ -49,7 +50,7 @@ const createWindow = async () => {
     titleBarStyle: "default",
     backgroundColor: "#fff",
     title: "测试xxx",
-    icon: "build/icon/256x256.png",
+    icon: path.join(__dirname, "../../", "public/icons/256x256.png"),
     webPreferences: {
       sandbox: false,
       nodeIntegration: true,
@@ -70,7 +71,8 @@ const createWindow = async () => {
     win.loadURL("http://192.168.120.178:8881/#/home");
     // win.webContents.openDevTools();
   } else {
-    win.loadFile("build/index.html").catch(() => null);
+    win.loadFile("build/index.html");
+    // win.webContents.openDevTools();
   }
   win.on("close", (e) => {
     e.preventDefault(); // 阻止退出程序
@@ -92,7 +94,9 @@ app.whenReady().then(() => {
     body: "打印机初始化完成",
   }).show();
   // 托盘
-  const icon = nativeImage.createFromPath("build/icon/256x256.png");
+  const icon = nativeImage.createFromPath(
+    path.join(__dirname, "../../", "public/icons/256x256.png")
+  );
   const tray = new Tray(icon);
 
   const contextMenu = Menu.buildFromTemplate([
