@@ -64,12 +64,12 @@ module.exports = (win, store) => {
     _.returnValue = printers;
   });
   // 打印
-  ipcMain.on("print-file", async (_, { url, deviceName }) => {
+  ipcMain.on("print-file", (_, { url, deviceName }) => {
     try {
       // 下载 PDF
       const localPath = path.join(tempDir, `temp_${Date.now()}.pdf`);
       // 保存到本地
-      await downloadPDF(url, localPath, () => {
+      downloadPDF(url, localPath, () => {
         ptp
           .print(localPath, {
             printer: deviceName, // 可选指定打印机
@@ -79,7 +79,11 @@ module.exports = (win, store) => {
             createNotification("打印成功", "打印成功");
             // 删除pdf;
             try {
-              fs.unlinkSync(localPath);
+              fs.unlink(localPath, (err) => {
+                if (err) {
+                  console.error("无法删除文件:", err);
+                }
+              });
             } catch (err) {
               console.error("无法删除文件:", err);
             }
@@ -106,13 +110,12 @@ module.exports = (win, store) => {
 };
 
 // 下载 PDF 文件
-const downloadPDF = (url, outputPath, callback = null) => {
+const downloadPDF = async (url, outputPath, callback = null) => {
   https
     .get(url, (response) => {
       if (response.statusCode === 200) {
         const fileStream = fs.createWriteStream(outputPath);
         response.pipe(fileStream);
-
         fileStream.on("finish", () => {
           fileStream.close();
           callback && callback();
@@ -124,4 +127,15 @@ const downloadPDF = (url, outputPath, callback = null) => {
     .on("error", (err) => {
       console.error("PDF download fail:", err);
     });
+  // try {
+  //   const response = await fetch(url, {
+  //     method: "GET",
+  //     timeout: 5000, // 设置超时时间（毫秒）
+  //   });
+  //   const data = await response.json();
+  //   console.log(data);
+  // } catch (error) {
+  //   console.error("Error fetching data:", error);
+  //   return null;
+  // }
 };
