@@ -127,15 +127,4 @@ const downloadPDF = async (url, outputPath, callback = null) => {
     .on("error", (err) => {
       console.error("PDF download fail:", err);
     });
-  // try {
-  //   const response = await fetch(url, {
-  //     method: "GET",
-  //     timeout: 5000, // 设置超时时间（毫秒）
-  //   });
-  //   const data = await response.json();
-  //   console.log(data);
-  // } catch (error) {
-  //   console.error("Error fetching data:", error);
-  //   return null;
-  // }
 };
