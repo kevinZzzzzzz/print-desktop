@@ -11,8 +11,7 @@ function HomePage(props: any) {
   const printUrl = useRef<string>("");
 
   useEffect(() => {
-    // handleSSE();
-    console.log(window.$electronAPI.getPrintInfo());
+    handleSSE();
     setPrintList(() => {
       return window.$electronAPI.getPrintInfo().map((d, idx) => {
         if (d.isDefault) {
@@ -27,11 +26,9 @@ function HomePage(props: any) {
   }, []);
 
   const handlePrint = () => {
-    // console.log("Received message:", printUrl.current);
-    // if (!printUrl.current) return false;
+    if (!printUrl.current) return false;
     window.$electronAPI.printFile({
-      // url: printUrl.current,
-      url: "https://id97768mz34.vicp.fun/report/generate/sql/out_blood?clientId=1303&recordId=ZC20241227003&type=1&stationType=bloodcompanynet&facility.id=104",
+      url: printUrl.current,
       deviceName: setPrint,
     });
   };
@@ -41,7 +38,6 @@ function HomePage(props: any) {
       console.log("Connected to SSE server");
     };
     eventSource.onmessage = (event) => {
-      console.log(event);
       const { params, uri } = JSON.parse(event.data);
       const url = `${host}${uri}?${handleParams(params)}`;
       printUrl.current = url;
