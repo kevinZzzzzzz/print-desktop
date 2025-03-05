@@ -11,7 +11,7 @@ function HomePage(props: any) {
   const printUrl = useRef<string>("");
 
   useEffect(() => {
-    handleSSE();
+    // handleSSE();
     console.log(window.$electronAPI.getPrintInfo());
     setPrintList(() => {
       return window.$electronAPI.getPrintInfo().map((d, idx) => {
@@ -27,10 +27,11 @@ function HomePage(props: any) {
   }, []);
 
   const handlePrint = () => {
-    console.log("Received message:", printUrl.current);
-    if (!printUrl.current) return false;
+    // console.log("Received message:", printUrl.current);
+    // if (!printUrl.current) return false;
     window.$electronAPI.printFile({
-      url: printUrl.current,
+      // url: printUrl.current,
+      url: "https://id97768mz34.vicp.fun/report/generate/sql/out_blood?clientId=1303&recordId=ZC20241227003&type=1&stationType=bloodcompanynet&facility.id=104",
       deviceName: setPrint,
     });
   };

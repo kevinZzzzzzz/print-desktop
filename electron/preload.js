@@ -55,6 +55,6 @@ contextBridge.exposeInMainWorld("$electronAPI", {
     return resp;
   },
   printFile: ({ url, deviceName }) => {
-    ipcRenderer.sendSync("print-file", { url, deviceName });
+    ipcRenderer.send("print-file", { url, deviceName });
   },
 });

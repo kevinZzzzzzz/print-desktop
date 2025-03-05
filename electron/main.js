@@ -54,6 +54,7 @@ const createWindow = async () => {
     webPreferences: {
       sandbox: false,
       nodeIntegration: true,
+      nodeIntegrationInWorker: true,
       contextIsolation: true,
       webSecurity: false,
       enableRemoteModule: true,
@@ -69,7 +70,7 @@ const createWindow = async () => {
   }, 3000);
   if (isDev) {
     win.loadURL("http://192.168.120.178:8881/#/home");
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     win.loadFile("build/index.html");
     // win.webContents.openDevTools();
@@ -102,6 +103,9 @@ app.whenReady().then(() => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "退出",
+      icon: nativeImage.createFromPath(
+        path.join(__dirname, "../../", "public/icons/16x16.png")
+      ),
       click: function () {
         win.destroy();
         app.quit();
