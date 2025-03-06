@@ -7,7 +7,8 @@ import { setting } from "./setting";
 function HomePage(props: any) {
   const [printList, setPrintList] = useState<any>([]);
   const [setPrint, setSetPrint] = useState<any>("");
-  const [host, setHost] = useState<string>(setting.url);
+  const [host, setHost] = useState<string>(setting.host);
+  const [sseHost, setSseHost] = useState<string>(setting.sseHost);
   const printUrl = useRef<string>("");
 
   useEffect(() => {
@@ -33,11 +34,13 @@ function HomePage(props: any) {
     });
   };
   const handleSSE = () => {
-    const eventSource = new EventSource(`${window.location.origin}/api/sse`);
+    // const eventSource = new EventSource(`${window.location.origin}/api/sse`);
+    const eventSource = new EventSource(`${sseHost}sync/api/common/sse`);
     eventSource.onopen = () => {
       console.log("Connected to SSE server");
     };
     eventSource.onmessage = (event) => {
+      if (!event.data) return false;
       const { params, uri } = JSON.parse(event.data);
       const url = `${host}${uri}?${handleParams(params)}`;
       printUrl.current = url;
@@ -93,6 +96,17 @@ function HomePage(props: any) {
             placeholder="请输入服务端地址"
             onChange={(e: any) => {
               setHost(e.target.value);
+            }}
+          />
+        </Space>
+        <Space>
+          <p>SSE地址：</p>
+          <Input
+            value={sseHost}
+            style={{ width: 400 }}
+            placeholder="请输入SSE地址"
+            onChange={(e: any) => {
+              setSseHost(e.target.value);
             }}
           />
         </Space>

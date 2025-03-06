@@ -1,3 +1,4 @@
 export const setting = {
-  url: "https://id97768mz34.vicp.fun/",
+  host: "https://id97768mz34.vicp.fun/",
+  sseHost: "http://192.168.120.243:8570/",
 };
