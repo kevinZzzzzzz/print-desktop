@@ -28,17 +28,18 @@ function HomePage(props: any) {
       });
     });
 
-    handleSSE(localSseHost);
+    handleSSE(localSseHost, localHost);
   }, []);
 
   const handlePrint = () => {
     if (!printUrl.current) return false;
+    console.log(printUrl.current, "printUrl.current");
     window.$electronAPI.printFile({
       url: printUrl.current,
       deviceName: setPrint,
     });
   };
-  const handleSSE = (sseHost) => {
+  const handleSSE = (sseHost, host) => {
     if (!sseHost) return false;
     // const eventSource = new EventSource(`${window.location.origin}/api/sse`);
     try {
