@@ -43,8 +43,8 @@ protocol.registerSchemesAsPrivileged([
 // 加载一个新的BrowserWindow实例，并打开窗口
 const createWindow = async () => {
   win = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    width: 700,
+    height: 240,
     frame: true,
     // alwaysOnTop: true,
     titleBarStyle: "default",

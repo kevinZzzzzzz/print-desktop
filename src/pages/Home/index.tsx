@@ -12,7 +12,10 @@ function HomePage(props: any) {
   const printUrl = useRef<string>("");
 
   useEffect(() => {
-    handleSSE();
+    const localHost = window.localStorage.getItem("host") || null;
+    const localSseHost = window.localStorage.getItem("sseHost") || null;
+    setHost(localHost || setting.host);
+    setSseHost(localSseHost || setting.sseHost);
     setPrintList(() => {
       return window.$electronAPI.getPrintInfo().map((d, idx) => {
         if (d.isDefault) {
@@ -24,6 +27,8 @@ function HomePage(props: any) {
         };
       });
     });
+
+    handleSSE(localSseHost);
   }, []);
 
   const handlePrint = () => {
@@ -33,23 +38,28 @@ function HomePage(props: any) {
       deviceName: setPrint,
     });
   };
-  const handleSSE = () => {
+  const handleSSE = (sseHost) => {
+    if (!sseHost) return false;
     // const eventSource = new EventSource(`${window.location.origin}/api/sse`);
-    const eventSource = new EventSource(`${sseHost}sync/api/common/sse`);
-    eventSource.onopen = () => {
-      console.log("Connected to SSE server");
-    };
-    eventSource.onmessage = (event) => {
-      if (!event.data) return false;
-      const { params, uri } = JSON.parse(event.data);
-      const url = `${host}${uri}?${handleParams(params)}`;
-      printUrl.current = url;
-      handlePrint();
-    };
+    try {
+      const eventSource = new EventSource(`${sseHost}`);
+      eventSource.onopen = () => {
+        console.log("Connected to SSE server");
+      };
+      eventSource.onmessage = (event) => {
+        if (!event.data) return false;
+        const { params, uri } = JSON.parse(event.data);
+        const url = `${host}${uri}?${handleParams(params)}`;
+        printUrl.current = url;
+        handlePrint();
+      };
 
-    eventSource.onerror = (err) => {
-      console.error("Error:", err);
-    };
+      eventSource.onerror = (err) => {
+        console.error("Error:", err);
+      };
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const handleParams = (param) => {
@@ -85,30 +95,50 @@ function HomePage(props: any) {
           >
             打印
           </Button>
-          <Button>预览</Button>
-          <Button type="primary" shape="circle" icon={<SettingOutlined />} />
+          {/* <Button>预览</Button> */}
+          {/* <Button type="primary" shape="circle" icon={<SettingOutlined />} /> */}
         </Space>
         <Space>
           <p>服务端地址：</p>
-          <Input
-            value={host}
-            style={{ width: 400 }}
-            placeholder="请输入服务端地址"
-            onChange={(e: any) => {
-              setHost(e.target.value);
-            }}
-          />
+          <Space.Compact>
+            <Input
+              value={host}
+              style={{ width: 400 }}
+              placeholder="请输入服务端地址"
+              onChange={(e: any) => {
+                setHost(e.target.value);
+                window.localStorage.setItem("host", e.target.value);
+              }}
+            />
+            <Button
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              保存
+            </Button>
+          </Space.Compact>
         </Space>
         <Space>
           <p>SSE地址：</p>
-          <Input
-            value={sseHost}
-            style={{ width: 400 }}
-            placeholder="请输入SSE地址"
-            onChange={(e: any) => {
-              setSseHost(e.target.value);
-            }}
-          />
+          <Space.Compact>
+            <Input
+              value={sseHost}
+              style={{ width: 400 }}
+              placeholder="请输入SSE地址"
+              onChange={(e: any) => {
+                setSseHost(e.target.value);
+                window.localStorage.setItem("sseHost", e.target.value);
+              }}
+            />
+            <Button
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              保存
+            </Button>
+          </Space.Compact>
         </Space>
         {/* <embed
           className={styles.homePage_iframe}
