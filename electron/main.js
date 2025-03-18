@@ -44,7 +44,7 @@ protocol.registerSchemesAsPrivileged([
 const createWindow = async () => {
   win = new BrowserWindow({
     width: 700,
-    height: 240,
+    height: 300,
     frame: true,
     // alwaysOnTop: true,
     titleBarStyle: "default",

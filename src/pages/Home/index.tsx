@@ -9,13 +9,19 @@ function HomePage(props: any) {
   const [setPrint, setSetPrint] = useState<any>("");
   const [host, setHost] = useState<string>(setting.host);
   const [sseHost, setSseHost] = useState<string>(setting.sseHost);
+  const [clientId, setClientId] = useState<string>(setting.clientId);
   const printUrl = useRef<string>("");
 
   useEffect(() => {
-    const localHost = window.localStorage.getItem("host") || null;
-    const localSseHost = window.localStorage.getItem("sseHost") || null;
-    setHost(localHost || setting.host);
-    setSseHost(localSseHost || setting.sseHost);
+    const localHost =
+      window.localStorage.getItem("host") || setting.host || null;
+    const localSseHost =
+      window.localStorage.getItem("sseHost") || setting.sseHost || null;
+    const localClientId =
+      window.localStorage.getItem("clientId") || setting.clientId || null;
+    setHost(localHost);
+    setSseHost(localSseHost);
+    setClientId(localClientId);
     setPrintList(() => {
       return window.$electronAPI.getPrintInfo().map((d, idx) => {
         if (d.isDefault) {
@@ -28,7 +34,7 @@ function HomePage(props: any) {
       });
     });
 
-    handleSSE(localSseHost, localHost);
+    handleSSE(localSseHost, localHost, localClientId);
   }, []);
 
   const handlePrint = () => {
@@ -39,18 +45,18 @@ function HomePage(props: any) {
       deviceName: setPrint,
     });
   };
-  const handleSSE = (sseHost, host) => {
-    if (!sseHost) return false;
+  const handleSSE = (LSseHost, lHost, lClientId) => {
+    if (!LSseHost) return false;
     // const eventSource = new EventSource(`${window.location.origin}/api/sse`);
     try {
-      const eventSource = new EventSource(`${sseHost}`);
+      const eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
       eventSource.onopen = () => {
         console.log("Connected to SSE server");
       };
       eventSource.onmessage = (event) => {
         if (!event.data) return false;
         const { params, uri } = JSON.parse(event.data);
-        const url = `${host}${uri}?${handleParams(params)}`;
+        const url = `${lHost}${uri}?${handleParams(params)}`;
         printUrl.current = url;
         handlePrint();
       };
@@ -77,6 +83,28 @@ function HomePage(props: any) {
       <Space direction="vertical">
         <h1>Print Desktop</h1>
         <Space>
+          <p>设备ID：</p>
+          <Space.Compact>
+            <Input
+              value={clientId}
+              type="number"
+              style={{ width: 100 }}
+              placeholder="请输入设备ID"
+              onChange={(e: any) => {
+                setClientId(e.target.value);
+                window.localStorage.setItem("clientId", e.target.value);
+              }}
+            />
+            <Button
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              保存
+            </Button>
+          </Space.Compact>
+        </Space>
+        <Space>
           <p>本地打印机：</p>
           <Select
             showSearch
@@ -88,14 +116,14 @@ function HomePage(props: any) {
               setSetPrint(d);
             }}
           />
-          <Button
+          {/* <Button
             type="primary"
             onClick={() => {
               handlePrint();
             }}
           >
             打印
-          </Button>
+          </Button> */}
           {/* <Button>预览</Button> */}
           {/* <Button type="primary" shape="circle" icon={<SettingOutlined />} /> */}
         </Space>
