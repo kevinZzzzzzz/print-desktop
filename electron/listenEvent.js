@@ -7,6 +7,7 @@ const {
   BrowserWindow,
 } = require("electron");
 const https = require("https");
+const http = require("http");
 const fs = require("fs-extra");
 const path = require("path");
 const ptp = require("pdf-to-printer");
@@ -108,23 +109,43 @@ module.exports = (win, store) => {
     win.webContents.openDevTools();
   });
 };
+function checkUrlProtocol(url) {
+  try {
+    // 自动补全协议头（处理无协议头的域名格式）
+    const fullUrl = url.includes("://") ? url : `http://${url}`;
+    const protocol = new URL(fullUrl).protocol.replace(":", "").toLowerCase();
 
+    // 返回有效协议类型
+    return protocol === "http" || protocol === "https" ? protocol : null;
+  } catch (error) {
+    // 捕获非法URL格式错误
+    return null;
+  }
+}
 // 下载 PDF 文件
 const downloadPDF = async (url, outputPath, callback = null) => {
-  https
-    .get(url, (response) => {
-      if (response.statusCode === 200) {
-        const fileStream = fs.createWriteStream(outputPath);
-        response.pipe(fileStream);
-        fileStream.on("finish", () => {
-          fileStream.close();
-          callback && callback();
-        });
-      } else {
-        console.error("PDF download fail:", response.statusCode);
-      }
-    })
-    .on("error", (err) => {
-      console.error("PDF download fail:", err);
-    });
+  const module = checkUrlProtocol(url) === "https" ? https : http;
+  try {
+    module
+      .get(url, (response) => {
+        if (response.statusCode === 200) {
+          const fileStream = fs.createWriteStream(outputPath);
+          response.pipe(fileStream);
+          fileStream.on("finish", () => {
+            fileStream.close();
+            callback && callback();
+          });
+          fileStream.on("error", (err) => {
+            createNotification("PDF download fail:", err);
+          });
+        } else {
+          createNotification("PDF download fail:", response.statusCode);
+        }
+      })
+      .on("error", (err) => {
+        createNotification("PDF download fail:", err);
+      });
+  } catch (error) {
+    createNotification("PDF download fail:", error);
+  }
 };
