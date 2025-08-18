@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./index.module.scss";
-import { Space, Button, Select, Input } from "antd";
+import { Space, Button, Select, Input  } from "antd";
 import { SettingOutlined } from "@ant-design/icons";
 import { setting } from "./setting";
 
@@ -11,6 +11,11 @@ function HomePage(props: any) {
   const [sseHost, setSseHost] = useState<string>(setting.sseHost);
   const [clientId, setClientId] = useState<string>(setting.clientId);
   const printUrl = useRef<string>("");
+  let eventSource = null
+  let resetTimer = null
+  let resetCount = 0
+  const resetTime = 10000 
+
 
   useEffect(() => {
     const localHost =
@@ -35,11 +40,15 @@ function HomePage(props: any) {
     });
 
     handleSSE(localSseHost, localHost, localClientId);
+    return () => {
+      eventSource.close()
+      clearTimeout(resetTimer)
+      resetCount = 0
+    }
   }, []);
 
   const handlePrint = () => {
     if (!printUrl.current) return false;
-    console.log(printUrl.current, "printUrl.current");
     window.$electronAPI.printFile({
       url: printUrl.current,
       deviceName: setPrint,
@@ -49,7 +58,7 @@ function HomePage(props: any) {
     if (!LSseHost) return false;
     // const eventSource = new EventSource(`${window.location.origin}/api/sse`);
     try {
-      const eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
+      eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
       eventSource.onopen = () => {
         console.log("Connected to SSE server");
       };
@@ -62,10 +71,23 @@ function HomePage(props: any) {
       };
 
       eventSource.onerror = (err) => {
-        console.error("Error:", err);
+        if (resetCount < 5) {
+          window.$electronAPI.showNotification("错误提示",  "稍等，正在尝试重连。。。")
+          resetCount++
+          resetTimer = setTimeout(() => {
+            handleSSE(LSseHost, lHost, lClientId)
+          }, resetTime)
+        } else {
+          window.$electronAPI.showNotification("错误提示",  "SSE连接失败")
+          throw new Error("SSE连接失败")
+        }
       };
     } catch (error) {
-      console.log("error", error);
+      eventSource.close()
+      clearTimeout(resetTimer)
+      resetCount = 0
+      resetTimer = null
+      eventSource = null
     }
   };
 
