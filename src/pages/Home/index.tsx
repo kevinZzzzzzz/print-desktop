@@ -14,7 +14,7 @@ function HomePage(props: any) {
   let eventSource = null
   let resetTimer = null
   let resetCount = 0
-  const resetTime = 10000 
+  const resetTime = 60000 
 
 
   useEffect(() => {
