@@ -54,13 +54,21 @@ function HomePage(props: any) {
       deviceName: setPrint,
     });
   };
+  const initReset = () => {
+    clearTimeout(resetTimer)
+    resetCount = 0
+    resetTimer = null
+    eventSource = null
+    console.log("Connected to SSE server");
+  }
   const handleSSE = (LSseHost, lHost, lClientId) => {
     if (!LSseHost) return false;
     // const eventSource = new EventSource(`${window.location.origin}/api/sse`);
     try {
       eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
       eventSource.onopen = () => {
-        console.log("Connected to SSE server");
+        initReset()
+        eventSource.close()
       };
       eventSource.onmessage = (event) => {
         if (!event.data) return false;
@@ -70,24 +78,22 @@ function HomePage(props: any) {
         handlePrint();
       };
 
-      eventSource.onerror = (err) => {
-        if (resetCount < 5) {
-          window.$electronAPI.showNotification("错误提示",  "稍等，正在尝试重连。。。")
+      eventSource.onerror = () => {
+        if (resetCount < 100) {
+          resetCount % 20 === 0 && window.$electronAPI.showNotification("错误提示",  "稍等，正在尝试重连。。。")
           resetCount++
-          resetTimer = setTimeout(() => {
-            handleSSE(LSseHost, lHost, lClientId)
-          }, resetTime)
+          // resetTimer = setTimeout(() => {
+          //   eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
+          //   // handleSSE(LSseHost, lHost, lClientId)
+          // }, resetTime)
         } else {
           window.$electronAPI.showNotification("错误提示",  "SSE连接失败")
+          eventSource.close()
           throw new Error("SSE连接失败")
         }
       };
     } catch (error) {
-      eventSource.close()
-      clearTimeout(resetTimer)
-      resetCount = 0
-      resetTimer = null
-      eventSource = null
+      initReset()
     }
   };
 
