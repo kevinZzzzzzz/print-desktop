@@ -14,7 +14,7 @@ function HomePage(props: any) {
   let eventSource = null
   let resetTimer = null
   let resetCount = 0
-  const resetTime = 60000 
+  // const resetTime = 60000 
 
 
   useEffect(() => {
@@ -41,7 +41,7 @@ function HomePage(props: any) {
 
     handleSSE(localSseHost, localHost, localClientId);
     return () => {
-      eventSource.close()
+      eventSource && eventSource?.close()
       clearTimeout(resetTimer)
       resetCount = 0
     }
@@ -68,7 +68,7 @@ function HomePage(props: any) {
       eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
       eventSource.onopen = () => {
         initReset()
-        eventSource.close()
+        // eventSource.close()
       };
       eventSource.onmessage = (event) => {
         if (!event.data) return false;
@@ -80,7 +80,12 @@ function HomePage(props: any) {
 
       eventSource.onerror = () => {
         if (resetCount < 100) {
-          resetCount % 20 === 0 && window.$electronAPI.showNotification("错误提示",  "稍等，正在尝试重连。。。")
+          /**
+           * 无论连接成功或者失败，初始化的时候会走一遍error。
+           * 这里需要控制第一次连接失败的时候 以及之后每连接5次失败，才提示用户正在尝试重连。
+           * 超过100次，提示用户连接失败。
+           */
+          (resetCount == 1 || (resetCount && resetCount % 20 === 0)) && window.$electronAPI.showNotification("错误提示",  "稍等，正在尝试重连。。。")
           resetCount++
           // resetTimer = setTimeout(() => {
           //   eventSource = new EventSource(`${LSseHost}?clientId=${lClientId}`);
@@ -88,7 +93,7 @@ function HomePage(props: any) {
           // }, resetTime)
         } else {
           window.$electronAPI.showNotification("错误提示",  "SSE连接失败")
-          eventSource.close()
+          eventSource?.close()
           throw new Error("SSE连接失败")
         }
       };

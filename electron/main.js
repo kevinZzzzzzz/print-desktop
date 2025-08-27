@@ -69,7 +69,7 @@ const createWindow = async () => {
     win.setAlwaysOnTop(false);
   }, 3000);
   if (isDev) {
-    win.loadURL("http://192.168.120.178:8881/#/home");
+    win.loadURL("http://192.168.120.178:8882/#/home");
     win.webContents.openDevTools();
   } else {
     win.loadFile("build/index.html");
